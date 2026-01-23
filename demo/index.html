@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDGE | Early Detection for Geohazard Events</title>
+    <meta name="description"
+        content="Interactive hyper-local landslide risk simulation system for demonstration and experimentation">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="system-title">EDGE</h1>
+                <p class="system-subtitle">Hyper-Local Early Detection for Geohazard Events</p>
+            </div>
+            <div class="system-status" id="systemStatus">
+                <span class="status-indicator"></span>
+                <span class="status-text">System Ready</span>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="main-grid">
+            <!-- Left Panel: Input Playground -->
+            <section class="panel input-panel">
+                <h2 class="panel-title">Input Parameters</h2>
+
+                <div class="control-group">
+                    <label for="slopeAngle" class="control-label">
+                        Slope Angle
+                        <span class="control-value" id="slopeValue">35°</span>
+                    </label>
+                    <input type="range" id="slopeAngle" class="slider" min="10" max="60" value="35" step="1">
+                    <div class="range-labels">
+                        <span>10°</span>
+                        <span>60°</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="rainfallIntensity" class="control-label">
+                        Rainfall Intensity
+                        <span class="control-value" id="rainfallValue">35 mm/hr</span>
+                    </label>
+                    <input type="range" id="rainfallIntensity" class="slider" min="0" max="100" value="35" step="5">
+                    <div class="range-labels">
+                        <span>0 mm/hr</span>
+                        <span>100 mm/hr</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="rainfallDuration" class="control-label">
+                        Rainfall Duration
+                        <span class="control-value" id="durationValue">1.0 days</span>
+                    </label>
+                    <input type="range" id="rainfallDuration" class="slider" min="0.5" max="5.0" value="1.0" step="0.1">
+                    <div class="range-labels">
+                        <span>0.5 days</span>
+                        <span>5.0 days</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="soilCohesion" class="control-label">
+                        Soil Cohesion
+                        <span class="control-value" id="cohesionValue">15 kPa</span>
+                    </label>
+                    <input type="range" id="soilCohesion" class="slider" min="5" max="50" value="15" step="1">
+                    <div class="range-labels">
+                        <span>5 kPa</span>
+                        <span>50 kPa</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="frictionAngle" class="control-label">
+                        Friction Angle (φ)
+                        <span class="control-value" id="frictionValue">30°</span>
+                    </label>
+                    <input type="range" id="frictionAngle" class="slider" min="20" max="45" value="30" step="1">
+                    <div class="range-labels">
+                        <span>20°</span>
+                        <span>45°</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="initialSaturation" class="control-label">
+                        Initial Saturation
+                        <span class="control-value" id="saturationValue">50%</span>
+                    </label>
+                    <input type="range" id="initialSaturation" class="slider" min="10" max="90" value="50" step="5">
+                    <div class="range-labels">
+                        <span>10%</span>
+                        <span>90%</span>
+                    </div>
+                </div>
+
+                <button class="reset-button" id="resetButton">Reset to Defaults</button>
+            </section>
+
+            <!-- Center Panel: Visual Mountain Simulation -->
+            <section class="panel visualization-panel">
+                <h2 class="panel-title">Terrain Simulation</h2>
+                <div class="canvas-container">
+                    <canvas id="terrainCanvas"></canvas>
+                    <div class="rain"></div>
+                </div>
+                <div class="simulation-controls">
+                    <button class="sim-button" id="playButton">▶ Run Simulation</button>
+                    <button class="sim-button" id="pauseButton" disabled>⏸ Pause</button>
+                    <button class="sim-button" id="resetSimButton">↻ Reset</button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Constraints & System Logic -->
+            <section class="panel logic-panel">
+                <h2 class="panel-title">System Analysis</h2>
+
+                <div class="metric-card">
+                    <div class="metric-label">Factor of Safety (FoS)</div>
+                    <div class="metric-value" id="fosValue">1.50</div>
+                    <div class="metric-status" id="fosStatus">✓ Safe</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Rainfall Load</div>
+                    <div class="metric-value" id="rainfallLoad">Moderate</div>
+                    <div class="metric-detail" id="rainfallDetail">35 mm/hr for 6 hours</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Slope Stability</div>
+                    <div class="metric-value" id="slopeStability">Stable</div>
+                    <div class="metric-detail" id="slopeDetail">Angle: 35° (Moderate)</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-label">Pore Water Pressure</div>
+                    <div class="metric-value" id="poreWaterPressure">0.0 kPa</div>
+                    <div class="metric-detail" id="poreWaterDetail">Saturation: 50%</div>
+                </div>
+
+                <div class="reasoning-box">
+                    <h3 class="reasoning-title">System Reasoning</h3>
+                    <ul class="reasoning-list" id="reasoningList">
+                        <li>Slope angle within safe range</li>
+                        <li>Rainfall intensity moderate</li>
+                        <li>Soil cohesion adequate</li>
+                        <li>No critical thresholds crossed</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Bottom Panel: Risk Output -->
+            <section class="panel risk-panel">
+                <h2 class="panel-title">Landslide Risk Assessment</h2>
+
+                <div class="risk-display">
+                    <div class="risk-indicator" id="riskIndicator">
+                        <div class="risk-icon">🟢</div>
+                        <div class="risk-label" id="riskLabel">SAFE</div>
+                    </div>
+
+                    <div class="risk-metrics">
+                        <div class="risk-metric">
+                            <span class="risk-metric-label">Risk Probability</span>
+                            <span class="risk-metric-value" id="riskProbability">5%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-box" id="alertBox" style="display: none;">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <div class="alert-title">LANDSLIDE WARNING</div>
+                        <div class="alert-message" id="alertMessage"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>EDGE Early Detection of Geohazard Events | Physics-Based Risk Simulation</p>
+        </footer>
+    </div>
+
+    <script src="physics-engine.js"></script>
+    <script src="visualization.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

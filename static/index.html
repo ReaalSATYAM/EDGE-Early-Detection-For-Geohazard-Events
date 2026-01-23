@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDGE | Home</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            margin: 0;
+            padding-top: 64px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 64px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 1000;
+        }
+
+        .nav-left {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .nav-right a {
+            margin-left: 1.5rem;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .nav-right a.active,
+        .nav-right a:hover {
+            color: var(--primary);
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 0.6rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            background: var(--primary);
+            color: white;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .secondary-btn {
+            margin-top: 1rem;
+            background: #f1f5f9;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .secondary-btn:hover {
+            background: #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="nav-left">Landslide Risk System</div>
+        <div class="nav-right">
+            <a href="#" class="active">Home</a>
+            <a href="../demo/index.html">PlayGround</a>
+        </div>
+    </nav>
+
+    <!-- LEFT PANEL -->
+    <div class="panel">
+        <h1>Home</h1>
+        <p class="subtitle">Upload a dataset to proceed.</p>
+
+        <div class="input-group">
+            <label>Upload CSV File</label>
+            <input type="file" id="csvFile" accept=".csv">
+        </div>
+
+        <button id="uploadBtn" onclick="handleUpload()">Upload File</button>
+
+        <div id="actions" style="display:none; margin-top:2rem;">
+            <button class="secondary-btn" onclick="runAction('/api/backtest', 'Historical Backtest')">
+                Historical Backtest
+            </button>
+            <button class="secondary-btn" onclick="runAction('/api/live_sim', 'Live Simulation')">
+                Live Simulation
+            </button>
+            <button class="secondary-btn" onclick="runAction('/api/quick_demo', 'Quick Demo')">
+                Quick Demo
+            </button>
+        </div>
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div class="panel" id="resultsPanel" style="display:none; margin-left:2rem; max-width:800px;">
+        <h1 id="resultTitle">Results</h1>
+
+        <!-- TERMINAL OUTPUT -->
+        <div id="logContainer" style="display:none; margin-bottom:2rem;">
+            <h3>Terminal Output</h3>
+            <pre id="logOutput"
+                style="background:#1e293b; color:#fff; padding:1rem; border-radius:8px;
+                       height:300px; overflow:auto; font-family:'Fira Code', monospace;"></pre>
+        </div>
+
+        <!-- HEATMAP -->
+        <div id="imgContainer" style="display:none;">
+            <h3>Generated Heatmap</h3>
+            <img id="resultImage"
+                 style="width:100%; border-radius:8px; border:1px solid #ccc;">
+        </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <script>
+        let uploadedFileName = null;
+
+        function handleUpload() {
+            const fileInput = document.getElementById("csvFile");
+            if (!fileInput.files.length) {
+                alert("Please upload a CSV file.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            const btn = document.getElementById("uploadBtn");
+            btn.textContent = "Uploading...";
+            btn.disabled = true;
+
+            fetch("/api/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Upload failed");
+                return res.json();
+            })
+            .then(data => {
+                uploadedFileName = data.filename;
+                document.getElementById("actions").style.display = "block";
+                document.getElementById("resultsPanel").style.display = "block";
+                alert("File uploaded: " + uploadedFileName);
+            })
+            .catch(err => alert(err.message))
+            .finally(() => {
+                btn.textContent = "Upload File";
+                btn.disabled = false;
+            });
+        }
+
+        function runAction(endpoint, title) {
+            if (!uploadedFileName) {
+                alert("Please upload a file first.");
+                return;
+            }
+
+            document.querySelectorAll(".secondary-btn")
+                .forEach(b => b.disabled = true);
+
+            const titleEl = document.getElementById("resultTitle");
+            const logEl = document.getElementById("logOutput");
+            const imgEl = document.getElementById("resultImage");
+
+            titleEl.textContent = "Running " + title + "...";
+            logEl.textContent = "Processing...";
+            document.getElementById("logContainer").style.display = "block";
+            document.getElementById("imgContainer").style.display = "none";
+
+            fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ dataset_file: uploadedFileName })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("API Error: " + res.status);
+                return res.json();
+            })
+            .then(data => {
+                titleEl.textContent = title + " Results";
+
+                let logs = "No terminal output returned.";
+                if (data.logs && data.logs.trim().length > 0) {
+                    logs = data.logs;
+                }
+
+                logEl.textContent = logs;
+                logEl.scrollTop = logEl.scrollHeight;
+
+                if (data.image) {
+                    imgEl.src = "data:image/png;base64," + data.image;
+                    document.getElementById("imgContainer").style.display = "block";
+                }
+            })
+            .catch(err => {
+                logEl.textContent = "Error: " + err.message;
+            })
+            .finally(() => {
+                document.querySelectorAll(".secondary-btn")
+                    .forEach(b => b.disabled = false);
+            });
+        }
+    </script>
+
+</body>
+</html>
