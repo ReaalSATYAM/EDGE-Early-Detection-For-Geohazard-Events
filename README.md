@@ -235,7 +235,6 @@ These parameters are required for **physically-based slope stability computation
 
 Transformation logic implemented in: preprocess/soil_props.py → estimate_soil_parameters()
 
-
 ---
 
 ### 3.2 Normalization & Validation
@@ -253,8 +252,10 @@ This guarantees **physical consistency** across the dataset.
 
 ## 4️ Final Dataset Structure
 
-The final dataset is stored as: shimla_final_grid.csv
+The final dataset is stored as: shimla_final_grid.csv  
 
+**Important:**  
+If you are using your own dataset, it should include all the necessary features as described above. The sample dataset (Shimla) used for this project can be accessed here: [Sample Dataset](https://drive.google.com/file/d/119QRZ39XpEG4ovcSEEulwdMSLO3PP0cW/view?usp=sharing)
 
 ### Core Columns
 
@@ -269,7 +270,6 @@ The final dataset is stored as: shimla_final_grid.csv
 
 **Total records:**  
 ~**516,923 grid cells**
-
 ---
 
 ## 🧠 System Architecture & Execution Flow
