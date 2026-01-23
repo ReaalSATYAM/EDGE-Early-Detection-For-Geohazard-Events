@@ -9,15 +9,13 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# Absolute imports for package structure
+
 from sentinal.src.ingestion.loader import load_shimla_data
 from sentinal.src.preprocess.soil_props import estimate_soil_parameters
 from sentinal.src.models.fisical_fos import compute_fos_vectorized
-# Assuming MLResidual exists as per user snippet
 try:
     from sentinal.src.models.ml_residual import MLResidual
 except ImportError:
-    # Fallback mock if missing to prevent crash
     class MLResidual:
         def predict_residual(self, feats): return np.zeros(len(feats))
 import sentinal.src.config as config
@@ -38,7 +36,6 @@ def generate_sms(lat: float, lon: float, risk: float, fos: float) -> str:
     return f"ALERT: High Landslide Risk ({risk:.2f}). Loc:{lat:.4f},{lon:.4f} FoS:{fos:.2f}. AC:Immediate"
 
 def run_demo_event(csv_path=None, web_mode=False):
-    # Capture stdout if web_mode
     captured_output = io.StringIO()
     if web_mode:
         sys.stdout = captured_output
