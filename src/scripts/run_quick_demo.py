@@ -34,6 +34,8 @@ def main():
     print("=== Sentinel-LEWS Edge Pipeline ===")
     
     # 1. Load Data
+    # Assuming the csv is in the root or accessible. 
+    # Try looking in standard paths
     csv_candidates = [
         "shimla_final_grid.csv",
         os.path.join(os.path.dirname(src_dir), "shimla_final_grid.csv"),
@@ -68,9 +70,32 @@ def main():
         'ksat': df['ksat'].values
     }
     
-    initial_sat = np.full(len(df), 0.5) 
+    # Use R_7d as rainfall proxy if available, or just a heavy rain scenario
+    # User said R_7d is available.
+    # Assuming R_7d is in mm.
+    # We treat R_7d as the "event rainfall" or derive intensity.
+    # Let's assume R_7d represents saturation, and we add a storm event on top?
+    # Or just use R_7d as the input to the 'accumulated rain' logic.
+    # The compute_fos_grid takes 'initial_saturation' and 'rainfall_intensity'.
+    # We can approximate 'initial_saturation' from R_30d if available or just 0.5.
+    # And use R_7d as the storm.
+    
+    # Simple approx:
+    initial_sat = np.full(len(df), 0.5) # Default
     if 'R_30d' in df.columns:
+        # Normalize R_30d to 0-1 saturation proxy? Max rain ~500mm?
         initial_sat = np.clip(df['R_30d'] / 500.0, 0.0, 0.9)
+    
+    # Rainfall intensity: Take R_7d and assume it fell over ... 7 days? 
+    # Or is it "Rainfall last 7 days"?
+    # The prompt says "time-series rainfall columns such as 2020-01-01...".
+    # And "R_7d .. used as proxies for soil saturation".
+    # Let's assume a hypothetical storm for prediction?
+    # "Predict ... with at least 6-hour lead time."
+    # Let's assume a 50mm/hr storm for 6 hours to see what breaks.
+    # OR use R_7d magnitude as the stressor.
+    # Let's use a fixed design storm for "Early Warning" of an incoming storm.
+    # Design storm: 30mm/hr for 6 hours.
     
     # Extreme event stress test
     design_rain_mmph = 50.0
@@ -144,7 +169,7 @@ def main():
         
         lat_min, lat_max = df['lat'].min(), df['lat'].max()
         lon_min, lon_max = df['lon'].min(), df['lon'].max()
-        grid_size = 200  
+        grid_size = 200  # 200x200 grid for smoothing
 
         lat_grid = np.linspace(lat_min, lat_max, grid_size)
         lon_grid = np.linspace(lon_min, lon_max, grid_size)
@@ -184,6 +209,7 @@ def main():
         plt.ylabel('Latitude')
         plt.title('Shimla Landslide Risk Heatmap')
 
+        # Optional: Overlay top hotspots
         if not hotspots.empty:
             plt.scatter(hotspots['lon'], hotspots['lat'], color='blue', edgecolor='white', s=50, label='Top Hotspots')
             plt.legend()

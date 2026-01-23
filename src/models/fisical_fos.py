@@ -59,7 +59,7 @@ def compute_fos_vectorized(
     
     # Vectorized Infiltration
     inf_rate = np.minimum(rain_rate_ms, ksat) if np.ndim(ksat) > 0 else min(rain_rate_ms, ksat)
-    infiltration_depth_m = inf_rate * duration_s # Zw * ne
+    infiltration_depth_m = inf_rate * duration_s 
     
     # Rise in water table due to storm
     h_w_rise = infiltration_depth_m / ne
@@ -100,4 +100,3 @@ def compute_fos_vectorized(
     fos = np.clip(fos, 0.0, 10.0)
     
     return fos
-
