@@ -434,3 +434,12 @@ Runs on:
 📌 With regional partitioning, **real-time district-level alerts** are achievable.
 
 ---
+
+## Usage
+- First you must clone the repo: https://github.com/ReaalSATYAM/EDGE-Early-Detection-For-Geohazard-Events .  
+- After the cloning you must download the requirements using: pip install -r requirements.txt  
+- As you have installed the requirements, you may move forward with runnning the codebase using : python -m uvicorn app_fastapi: app --reload  .
+- Upon clicking on the localhot link generated, you will be directed to our webpage.  
+- There you might upload the dataset you have and choose the way you wish to see your output.  
+-  You can also understand the working of our program with the help of our PlayGround on the top right corner of the page.
+- The PlayGround deals with the same parameters as we have used in our code.
