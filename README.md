@@ -43,11 +43,10 @@ Sentinel-LEWS operates as a **hybrid intelligence system**:
 - Live or simulated rainfall streams
 
 ### Core Modeling
-- Physics-based **Factor of Safety (FoS)** computation
+- Physics-based **Factor of Safety (FoS) computed using Green Ampt infiltration equation and Mohr coulmb failure criterion** 
 - Rain-induced soil saturation modeling
-- Machine learning **residual risk correction**
-
-### Operational Output
+ 
+ ### Operational Output
 - Continuous landslide risk maps
 - Identification of unstable slope zones
 - Actionable early warning signals
@@ -61,9 +60,6 @@ Uses geotechnical slope stability equations as the **primary predictor**.
 
 ### Sensor Fusion Engine
 Seamlessly merges sparse ground sensors with satellite rainfall to generate **reliable rainfall fields**.
-
-### ML as Residual, Not Replacement
-Machine learning enhances predictions **without overriding physical laws**.
 
 ### Grid-Based Parallelism
 Each grid cell is independently evaluated, enabling **horizontal scalability**.
